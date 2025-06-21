@@ -2,7 +2,6 @@ const express = require('express');
 const line = require('@line/bot-sdk');
 const cron = require('node-cron');
 
-// 建議改用環境變數設定 Token 和 Secret，避免直接寫死
 const config = {
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN || 'miteCrm5LO12yKC3bkA0JUyXJmG1Ij7njpw7gnBmy5a6tHvdh256tKfcDHLC8FAk8ukcU8FDVbW3jdxgjYMsvrVKsUk90Up6WYAcBgcuW+u2bf4+HQo150rAqoazAlRDux3XoIGDqR93usVORUcpbwdB04t89/1O/w1cDnyilFU=',
   channelSecret: process.env.CHANNEL_SECRET || '2331849964c6f9dad76337152a665c61',
@@ -11,13 +10,10 @@ const config = {
 const client = new line.Client(config);
 const app = express();
 
-// 使用 LINE middleware 解析 webhook 訊息
 app.use(line.middleware(config));
 
-// Webhook 路由
 app.post('/webhook', (req, res) => {
   console.log('✅ 收到 webhook:', JSON.stringify(req.body));
-
   Promise
     .all(req.body.events.map(handleEvent))
     .then(() => res.status(200).send('OK'))
@@ -27,9 +23,7 @@ app.post('/webhook', (req, res) => {
     });
 });
 
-// 處理收到的事件
 function handleEvent(event) {
-  // 非文字訊息直接忽略
   if (event.type !== 'message' || event.message.type !== 'text') {
     return Promise.resolve(null);
   }
@@ -54,22 +48,18 @@ function handleEvent(event) {
     }
   }
 
-  // 回覆用戶訊息
   return client.replyMessage(event.replyToken, {
     type: 'text',
     text: replyText,
   });
 }
 
-// 設定每天晚上 8 點 (20:00) 自動推播訊息
-// cron 表達式 '0 20 * * *' 表示每天 20:00 執行一次
+// 每天 20:00 自動推播樂天聯盟連結
 cron.schedule('0 20 * * *', () => {
-  // TODO: 將下面 to 改成你要推播的用戶ID或群組ID
-  const toUserId = '你的用戶ID';
-
+  const toUserId = '你的用戶ID'; // 可改為動態用戶儲存邏輯
   const pushMessage = {
     type: 'text',
-    text: '🛒 今日懶人神器推薦：https://affiliate-link.example.com',
+    text: '🛒 今日懶人神器推薦：\n屈臣氏Watsons 👉 https://affiliate.api.rakuten.com.tw/redirect?nw=tw&site=afl&ar=8e695938e08d5ad6c86f697b1809fba5a5885451a9b4c42a5f7aeac8eaec15496821bd616eda6de8&cs=845286406c464239fae7a5487bd36567&pr=6df508f53784c75f&ap=pr%3D6df508f53784c75f&e=1&url=https%3A%2F%2Fwww.rakuten.com.tw%2Fshop%2Fwatsons%3Fscid%3Drafp-%26utm_source%3Dindividual%26utm_medium%3Drafp-ind69097%26utm_campaign%3Dshop_URL_PC'
   };
 
   client.pushMessage(toUserId, pushMessage)
@@ -77,13 +67,7 @@ cron.schedule('0 20 * * *', () => {
     .catch((err) => console.error('❌ 推播錯誤', err));
 });
 
-// Render 服務使用的 port，預設 10000
 const port = process.env.PORT || 10000;
-app.listen(port, () => {
-  console.log(`✅ Server running on port ${port}`);
-});
-// Render 會指定 PORT，沒指定就用 3000
-const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
