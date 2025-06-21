@@ -1,20 +1,19 @@
 const express = require('express');
 const line = require('@line/bot-sdk');
 
-// 請務必改成用環境變數，勿直接寫死密鑰（以下僅供測試）
+// 用環境變數讀取，避免密鑰硬編碼
 const config = {
-  channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN || '你的AccessToken',
-  channelSecret: process.env.CHANNEL_SECRET || '你的ChannelSecret',
+  channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN || 'miteCrm5LO12yKC3bkA0JUyXJmG1Ij7njpw7gnBmy5a6tHvdh256tKfcDHLC8FAk8ukcU8FDVbW3jdxgjYMsvrVKsUk90Up6WYAcBgcuW+u2bf4+HQo150rAqoazAlRDux3XoIGDqR93usVORUcpbwdB04t89/1O/w1cDnyilFU=',
+  channelSecret: process.env.CHANNEL_SECRET || '2331849964c6f9dad76337152a665c61',
 };
 
 const client = new line.Client(config);
 const app = express();
 
-// 使用 LINE 的 middleware 解析訊息
-app.use(line.middleware(config));
+// 只在 /webhook 路由使用 LINE middleware，驗證簽名用的
+app.post('/webhook', line.middleware(config), (req, res) => {
+  console.log('✅ 收到 webhook', JSON.stringify(req.body));
 
-app.post('/webhook', (req, res) => {
-  console.log('✅ 收到 webhook');
   Promise
     .all(req.body.events.map(handleEvent))
     .then(() => res.status(200).send('OK'))
@@ -25,6 +24,7 @@ app.post('/webhook', (req, res) => {
 });
 
 function handleEvent(event) {
+  // 只處理文字訊息
   if (event.type !== 'message' || event.message.type !== 'text') {
     return Promise.resolve(null);
   }
@@ -55,8 +55,8 @@ function handleEvent(event) {
   });
 }
 
-// Render 用的 Port 必須是 process.env.PORT
-const port = process.env.PORT || 10000;
+// Render 會指定 PORT，沒指定就用 3000
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
