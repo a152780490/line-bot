@@ -1,15 +1,17 @@
 const express = require('express');
 const line = require('@line/bot-sdk');
 
+// 請務必改成用環境變數，勿直接寫死密鑰（以下僅供測試）
 const config = {
-  channelAccessToken: 'miteCrm5LO12yKC3bkA0JUyXJmG1Ij7njpw7gnBmy5a6tHvdh256tKfcDHLC8FAk8ukcU8FDVbW3jdxgjYMsvrVKsUk90Up6WYAcBgcuW+u2bf4+HQo150rAqoazAlRDux3XoIGDqR93usVORUcpbwdB04t89/1O/w1cDnyilFU=',
-  channelSecret: '2331849964c6f9dad76337152a665c61',
+  channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN || '你的AccessToken',
+  channelSecret: process.env.CHANNEL_SECRET || '你的ChannelSecret',
 };
 
-const client = new Client(config);
+const client = new line.Client(config);
 const app = express();
 
-app.use(middleware(config));
+// 使用 LINE 的 middleware 解析訊息
+app.use(line.middleware(config));
 
 app.post('/webhook', (req, res) => {
   console.log('✅ 收到 webhook');
@@ -53,7 +55,8 @@ function handleEvent(event) {
   });
 }
 
-const port = process.env.PORT || 3000;
+// Render 用的 Port 必須是 process.env.PORT
+const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
