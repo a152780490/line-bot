@@ -2,8 +2,8 @@ const express = require('express');
 const line = require('@line/bot-sdk');
 
 const config = {
-  channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN || '你的ChannelAccessToken',
-  channelSecret: process.env.CHANNEL_SECRET || '你的ChannelSecret',
+  channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN || 'miteCrm5LO12yKC3bkA0JUyXJmG1Ij7njpw7gnBmy5a6tHvdh256tKfcDHLC8FAk8ukcU8FDVbW3jdxgjYMsvrVKsUk90Up6WYAcBgcuW+u2bf4+HQo150rAqoazAlRDux3XoIGDqR93usVORUcpbwdB04t89/1O/w1cDnyilFU=',
+  channelSecret: process.env.CHANNEL_SECRET || '2331849964c6f9dad76337152a665c61',
 };
 
 const client = new line.Client(config);
